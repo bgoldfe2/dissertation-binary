@@ -1,4 +1,4 @@
-# Explainable and Extensible Transfomer based Architecutre leveraging Synthetic Data Generation for the Automated Detection of Cyberbullying
+# Paper 2: Cyberbullying Detection using Explainable and Responsible AI to Engage Parents and Teachers 
 
 ### Full Model Train
 
@@ -8,9 +8,8 @@
 
 ### TODO
  
- - Incorporate MLFlow or similar
-   - Hyperparameter Optimization
-   - Parameter GridSearch exploration
+ - Complete Incorporation MLFlow-like custom run system
+   - Hyperparameter Optimization (defer to possible move to Huggingface)
    - Full capture of all required data, metadata, and intermediate data
 
  - Include post analysis Matplotlib plots and graphs
@@ -18,14 +17,8 @@
    - Multiple Performance metrics per experiment
    - Comparison of Best Performance metrics for multiple experiments
    - Comparison of Baseline metrics with new Architecture
-     - GPT-2
-     - GPT-J
-     - GPT-Neo
-     - BERT
-     - Albert
-     - DeBERTa
+     - Binary Signal Architecture vs. Previous multi-model architecture
 
  - Synthetic Data Generation and Creation of Unique Data Set Using
-   - GPT-2
-   - GPT-Neo
-   - GPT-J
+   - Second IEEE Dataset
+   - Twitter Dataset from prior paper (Bangladesh)
