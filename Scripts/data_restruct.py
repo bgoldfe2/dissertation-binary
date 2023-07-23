@@ -3,21 +3,60 @@
 # university: George Mason University
 # date: July 23, 2023
 
-import os,sys
 import pandas as pd
 
-six = ['../Dataset/SixClass/test.csv', '../Dataset/SixClass/train.csv', '../Dataset/SixClass/valid.csv']
-num_trt = 6
+def parse_all_traits():
 
-for flnm in six:
-    six_df = pd.read_csv(flnm)
-    print('file shape is ', six_df.shape)
-    #print(six_df.head())
-    for trt in range(num_trt):
-        six_trait=six_df.loc[six_df['target'] == trt]
-        print('trait ', trt, 'shape is ',six_trait.shape)
+    fld_path = '../Dataset/SixClass/'
+    six = ['test.csv', 'train.csv', 'valid.csv']
+    num_trt = 6
+
+    rtn = []
+
+    # Iterate over three files for all six traits per file
+    for flnm in six:
+        # Read in the file
+        six_df = pd.read_csv(''.join([fld_path,flnm]))
+        inner = []
+        
+        # Filter for each trait
+        for trt in range(num_trt):
+            six_trait=six_df.loc[six_df['target'] == trt]
+            inner.append(six_trait)
+        rtn.append(inner)
+    
+    return rtn
+
+            
+def parse_by_trait(tgt):
+
+    fld_path = '../Dataset/SixClass/'
+    six = ['test.csv', 'train.csv', 'valid.csv']
+    
+    rtn = []
+
+    # Iterate over three files for all six traits per file
+    for flnm in six:
+        # Read in the file
+        six_df = pd.read_csv(''.join([fld_path,flnm]))
+        #print('file ', flnm, ' is shape ', six_df.shape)
+        #print(six_df.head())
+        
+        six_trait=six_df.loc[six_df['target'] == tgt]
+        #print('    trait ', tgt, 'is shape ',six_trait.shape)
         #print(six_trait.head())
-        print()
+        #print()
+        rtn.append(six_trait)
 
+    return rtn[0], rtn[1], rtn[2]
 
+if __name__=="__main__":
+    
+    all = parse_all_traits()
+    for i,df in enumerate(all):
+        print('file ', i, ' is ', len(df), ' traits')
+        for i,trt_num in enumerate(df):
+            print('    trait ', i, ' is ', len(trt_num))
 
+    test, train, valid = parse_by_trait(0)
+    print('\nTrait test for 0 ',test.shape, train.shape, valid.shape)
