@@ -4,6 +4,9 @@
 # date: July 23, 2023
 
 import pandas as pd
+import os
+
+os.chdir("/home/bruce/dev/dissertation-binary/Scripts/")
 
 def parse_all_traits():
 
@@ -39,6 +42,27 @@ def parse_by_trait(tgt):
     for flnm in six:
         # Read in the file
         six_df = pd.read_csv(''.join([fld_path,flnm]))
+        print('file ', flnm, ' is shape ', six_df.shape)
+        print(six_df.head())
+        
+        six_trait=six_df.loc[six_df['target'] == tgt]
+        print('    trait ', tgt, 'is shape ',six_trait.shape)
+        print(six_trait.head())
+        print()
+        rtn.append(six_trait)
+
+    return rtn[0], rtn[1], rtn[2]
+
+def make_trait_based_files():
+    fld_path = '../Dataset/SixClass/'
+    six = ['test.csv', 'train.csv', 'valid.csv']
+    
+    rtn = []
+
+    # Iterate over three files for all six traits per file
+    for flnm in six:
+        # Read in the file
+        six_df = pd.read_csv(''.join([fld_path,flnm]))
         #print('file ', flnm, ' is shape ', six_df.shape)
         #print(six_df.head())
         
@@ -50,7 +74,13 @@ def parse_by_trait(tgt):
 
     return rtn[0], rtn[1], rtn[2]
 
+
 if __name__=="__main__":
+
+    traits ={ "Age":0, "Ethnicity": 1, "Gender": 2, "Notcb":3, "Others":4, "Religion": 5}
+    #val, train, test = parse_by_trait(4)
+    #print("num train ",len(train), " val ", len(val), " test ", len(test))
+
     
     all = parse_all_traits()
     for i,df in enumerate(all):
@@ -58,5 +88,11 @@ if __name__=="__main__":
         for i,trt_num in enumerate(df):
             print('    trait ', i, ' is ', len(trt_num))
 
-    test, train, valid = parse_by_trait(0)
-    print('\nTrait test for 0 ',test.shape, train.shape, valid.shape)
+    val = all[0][0]
+    test = all[1][0]
+    train = all[2][0]
+    
+    # NOTE: now just have to save each of these as val, test, train in each of the numbered folders
+
+    
+    
