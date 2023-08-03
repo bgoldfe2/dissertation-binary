@@ -6,8 +6,8 @@
 import pandas as pd
 import os
 
-os.chdir("/home/bruce/dev/dissertation-binary/Scripts/")
-
+#os.chdir("/home/bruce/dev/dissertation-binary/Scripts/")
+os.chdir("/content/drive/MyDrive/Github/dissertation-binary/Scripts/")
 def parse_all_traits():
 
     fld_path = '../Dataset/SixClass/'
@@ -88,11 +88,18 @@ if __name__=="__main__":
         for i,trt_num in enumerate(df):
             print('    trait ', i, ' is ', len(trt_num))
 
-    val = all[0][0]
-    test = all[1][0]
-    train = all[2][0]
+    #val = all[0]  #[0]
+    #test = all[1] # [0]
+    #train = all[2] #[0]
     
-    # NOTE: now just have to save each of these as val, test, train in each of the numbered folders
+    # Save to Binary folder
+    fld = ["val", "test", "train"]
+    for i, folder in enumerate(fld):
+      #os.mkdir(''.join(['../Dataset/Binary/',folder]))
+      for trait in range(0,6):
+        all[i][trait].to_csv(''.join(['../Dataset/Binary/',folder,'/',str(trait),'.csv']), index=False)
 
-    
+
+   
+      
     
