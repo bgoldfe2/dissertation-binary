@@ -1,3 +1,8 @@
+# name: Bruce Goldfeder
+# class: CSI 999
+# university: George Mason University
+# date: July 23, 2023
+
 from Model_Config import Model_Config
 
 from evaluate import evaluate_all_models

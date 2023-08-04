@@ -1,3 +1,9 @@
+# name: Bruce Goldfeder
+# class: CSI 999
+# university: George Mason University
+# date: July 23, 2023
+# adapted from prior work
+
 from os import name
 import pandas as pd
 import torch
