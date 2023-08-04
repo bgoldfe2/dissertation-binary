@@ -53,7 +53,7 @@ def parse_by_trait(tgt):
 
     return rtn[0], rtn[1], rtn[2]
 
-def make_trait_based_files():
+def make_trait_based_files(tgt):
     fld_path = '../Dataset/SixClass/'
     six = ['test.csv', 'train.csv', 'valid.csv']
     
@@ -77,22 +77,23 @@ def make_trait_based_files():
 
 if __name__=="__main__":
 
-    traits ={ "Age":0, "Ethnicity": 1, "Gender": 2, "Notcb":3, "Others":4, "Religion": 5}
+    traits ={ '0': "Age", '1': "Ethnicity", '2': "Gender", '3': "Notcb", '4': "Others", '5': "Religion"}
+    split = ["val","train","test"]
     #val, train, test = parse_by_trait(4)
     #print("num train ",len(train), " val ", len(val), " test ", len(test))
 
-    
+    fld_bin_path ='../Dataset/Binary/'
     all = parse_all_traits()
-    for i,df in enumerate(all):
-        print('file ', i, ' is ', len(df), ' traits')
+    for ids,df in enumerate(all):
+        print('file ', split[ids], ' is ', len(df), ' traits')
         for i,trt_num in enumerate(df):
-            print('    trait ', i, ' is ', len(trt_num))
-
-    val = all[0][0]
-    test = all[1][0]
-    train = all[2][0]
-    
-    # NOTE: now just have to save each of these as val, test, train in each of the numbered folders
-
-    
-    
+            # Drop original and second indices and reset new one per file
+            trt_num.drop('Unnamed: 0', axis=1, inplace=True)
+            trt_num.reset_index(inplace=True, drop=True)
+            print(type(trt_num))
+            print(trt_num.head())
+            
+            
+            # save the csv file
+            trt_num.to_csv(''.join([fld_bin_path,split[ids],'//',split[ids],'_',traits.get(str(i)),'.csv'])\
+                           , index=False, header=True)
