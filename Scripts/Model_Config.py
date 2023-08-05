@@ -3,12 +3,12 @@
 # university: George Mason University
 # date: July 23, 2023
 
+traits ={ '0': "Age", '1': "Ethnicity", '2': "Gender", '3': "Notcb", '4': "Others", '5': "Religion"}
+
 class Model_Config:
 
     def __init__(self, args):
-        #parser = get_parser()
-        #args = parser.parse_args()
-
+        
         self.max_length=args.max_length         
         self.train_batch_size=args.train_batch_size    
         self.valid_batch_size=args.valid_batch_size     
@@ -22,15 +22,12 @@ class Model_Config:
         self.dropout=args.dropout
         self.seed=args.seed
         self.device=args.device
-        self.dataset=args.dataset
+        #self.dataset=args.dataset
 
         self.pretrained_model=args.pretrained_model
-        self.deberta_hidden=args.deberta_hidden
-        self.gpt_neo_hidden=args.gpt_neo_hidden
-        self.gpt_neo13_hidden=args.gpt_neo13_hidden
         self.roberta_hidden=args.roberta_hidden
-        self.xlnet_hidden=args.xlnet_hidden
-        self.albert_hidden=args.albert_hidden
+        
+        # Needs to be updated in Version 3 for tree ensemble
         self.ensemble_type=args.ensemble_type
 
         self.run_path=args.run_path
@@ -41,4 +38,3 @@ class Model_Config:
         self.split=args.split
 
         self.model_list = None
-        #self.current_model = None

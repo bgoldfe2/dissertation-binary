@@ -21,16 +21,28 @@ from dataset import train_validate_test_split
 
 import utils
 import matplotlib.pyplot as plt
-from Model_Config import Model_Config
+from Model_Config import Model_Config, traits
+import os
+
 
 def run(args: Model_Config):
     print("This is the model name ", args.pretrained_model)
     print("type that args is in run method ", type(args))
     print("This is the args.dataset_path in train run method", args.dataset_path)
-    if args.split == "yes":
-        create_dataset_files(args)
+    
+    # Read in the new per trait data sets
+    # All traits will be compared to the same class '0' Notcb - Not Cyberbullying
+    # All dataframes will have two output classes
 
-    train_df = pd.read_csv(f'{args.dataset_path}train.csv').dropna()
+    # LOOP needed, running through with one trait first hardcoded
+    print(os.getcwd())
+    # Get the absolute path to the file
+    file_path = os.path.abspath("../Dataset/Binary/train/train_Age.csv")
+
+    print(pd.read_csv(file_path).head())
+    train_df = pd.read_csv(''.join([args.dataset_path, 'train/train_', traits.get('0'), '.csv'   ])).dropna()
+    print(train_df.head())
+    asdf
     valid_df = pd.read_csv(f'{args.dataset_path}valid.csv').dropna()
     test_df = pd.read_csv(f'{args.dataset_path}test.csv').dropna()
        
@@ -236,3 +248,4 @@ def set_model(args):
 
 def count_model_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
+

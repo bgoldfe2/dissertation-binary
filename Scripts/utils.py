@@ -19,7 +19,8 @@ from datetime import datetime
 from Model_Config import Model_Config
 from glob import glob
 
-os.chdir("/home/bruce/dev/dissertation-final/Scripts")
+#os.chdir("/home/bruce/dev/dissertation-final/Scripts")
+print("this is the folder??? ",os.getcwd())
 
 class AverageMeter:
     """Computes and stores the average and current value"""
@@ -44,7 +45,8 @@ def create_folders(args: Model_Config) -> Model_Config:
     current_datetime = str(datetime.now().replace(microsecond=0)).replace(" ","_")
     
     # NOTE: for multi-architecture runs this run will append only the first model type
-    folder_name = "../Runs/" + current_datetime.replace(':','_') + "--" + args.pretrained_model.split('/',1)[1]
+    print("error",args.pretrained_model)
+    folder_name = "../Runs/" + current_datetime.replace(':','_') + "--" + args.pretrained_model #.split('/',1)[1] not needed roberta-base is HF model
     n=7 # number of letters in Scripts which is the folder we should be running from
     cur_dir = os.getcwd()
     #print(cur_dir)
