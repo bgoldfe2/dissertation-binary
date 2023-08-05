@@ -37,15 +37,37 @@ def run(args: Model_Config):
     # LOOP needed, running through with one trait first hardcoded
     print(os.getcwd())
     # Get the absolute path to the file
-    file_path = os.path.abspath("../Dataset/Binary/train/train_Age.csv")
+    #file_path = os.path.abspath("../Dataset/Binary/train/train_Age.csv")
 
-    print(pd.read_csv(file_path).head())
-    train_df = pd.read_csv(''.join([args.dataset_path, 'train/train_', traits.get('0'), '.csv'   ])).dropna()
-    print(train_df.head())
-    asdf
-    valid_df = pd.read_csv(f'{args.dataset_path}valid.csv').dropna()
-    test_df = pd.read_csv(f'{args.dataset_path}test.csv').dropna()
-       
+    #print(pd.read_csv(file_path).head())
+    
+
+    # the loop would get all the single traits 
+    all_traits = {} 
+    for i in range(0,6):
+        all_traits[''.join(['train_',str(i)])] = pd.read_csv(''.join([args.dataset_path, 'train/train_', traits.get(str(i)), '.csv'   ])).dropna()
+        all_traits[''.join(['val_',str(i)])] = pd.read_csv(''.join([args.dataset_path, 'val/val_', traits.get(str(i)), '.csv'   ])).dropna()
+        all_traits[''.join(['test_',str(i)])] = pd.read_csv(''.join([args.dataset_path, 'test/test_', traits.get(str(i)), '.csv'   ])).dropna()
+
+    print(all_traits)
+    trt = 1     # Hand checking all the traits
+    train_df =  all_traits.get(''.join(['train_',str(trt)]))
+    valid_df =  all_traits.get(''.join(['val_',str(trt)]))
+    test_df =   all_traits.get(''.join(['test_',str(trt)])) 
+
+    # All cyberbullying traits are appended with Notcb 3
+    trt = 3
+    train_df = train_df.append(all_traits.get(''.join(['train_',str(trt)])),ignore_index = True)
+    valid_df = valid_df.append(all_traits.get(''.join(['val_',str(trt)])),ignore_index = True)
+    test_df = test_df.append(all_traits.get(''.join(['test_',str(trt)])),ignore_index = True)
+
+    # Set the target values to 0 for the trait and 1 for the Notcb
+    train_df['target'].replace(3,1, inplace=True)
+    valid_df['target'].replace(3,1, inplace=True)
+    test_df['target'].replace(3,1, inplace=True)
+    
+    print(train_df)
+    
     print(set(train_df.label.values))
     print("train len - {}, valid len - {}, test len - {}".format(len(train_df),\
      len(valid_df),len(test_df)))
@@ -53,11 +75,14 @@ def run(args: Model_Config):
         print(col)
     print("train example text -- ",train_df.text[1],"\nwith target -- ",\
      train_df.label[1])
-
+    
     # BHG Text encoding occurs at model instantiation  
     train_dataset = generate_dataset(train_df, args)
+    print(train_dataset.target)
     print("train_dataset object is of type -- ",type(train_dataset))
     print("Print Encoded Token Byte tensor at location 1 -- ", train_dataset[1]['input_ids'])
+
+    print(train_df['target'].nunique())
     
     encoding = train_dataset[1]['input_ids']
     # TODO - the line below does not print out in Windows python due to unicode error would need
@@ -89,6 +114,7 @@ def run(args: Model_Config):
     model = set_model(args)
     # BHG model type and number of parameters initial instantiation
     print("Model Class: ", type(model), "Num Params: ",count_model_parameters(model))
+
     model = model.to(device)
     
     # BHG Model Paramter definition

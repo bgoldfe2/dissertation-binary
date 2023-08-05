@@ -128,35 +128,19 @@ def test_eval_fn_ensemble(data_loader, model, device, args):
     return final_output, final_target
 
 def generate_output(data, model, device, args: Model_Config):
-    pretrained_model = args.pretrained_model
-    if(pretrained_model == "roberta-base" or pretrained_model == "albert-base-v2" \
-          or pretrained_model == "EleutherAI/gpt-neo-125m" or pretrained_model == "microsoft/deberta-v3-base") \
-            or pretrained_model == "EleutherAI/gpt-neo-1.3B":
-            input_ids = data["input_ids"]
-            attention_mask = data["attention_mask"]
-            target = data["target"]
-            #print("TARGET in generate output for loss fn ", target)
+        
+    input_ids = data["input_ids"]
+    attention_mask = data["attention_mask"]
+    target = data["target"]
+    #print("TARGET in generate output for loss fn ", target)
 
-            input_ids = input_ids.to(device, dtype = torch.long)
-            attention_mask = attention_mask.to(device, dtype = torch.long)
-            target = target.to(device, dtype=torch.long)
+    input_ids = input_ids.to(device, dtype = torch.long)
+    attention_mask = attention_mask.to(device, dtype = torch.long)
+    target = target.to(device, dtype=torch.long)
 
-            model.zero_grad()
+    model.zero_grad()
 
-            output = model(input_ids=input_ids, attention_mask = attention_mask)
-    elif(pretrained_model == "xlnet-base-cased"):
-        input_ids = data["input_ids"]
-        attention_mask = data["attention_mask"]
-        token_type_ids = data["token_type_ids"]
-        target = data["target"]
-
-        input_ids = input_ids.to(device, dtype = torch.long)
-        attention_mask = attention_mask.to(device, dtype = torch.long)
-        token_type_ids = token_type_ids.to(device, dtype=torch.long)
-        target = target.to(device, dtype=torch.long)
-
-        model.zero_grad()
-
-        output = model(input_ids=input_ids, attention_mask = attention_mask, token_type_ids = token_type_ids)
+    output = model(input_ids=input_ids, attention_mask = attention_mask)
+    
 
     return output, target, input_ids
