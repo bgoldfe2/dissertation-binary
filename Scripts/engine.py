@@ -60,6 +60,7 @@ def train_fn(data_loader, model, optimizer, device, scheduler, args: Model_Confi
     f1 = np.round(f1.item(), 4)
     return f1, np.mean(train_losses)
 
+# This function performs one batch at a time e.g. batch = 32
 def eval_fn(data_loader, model, device, args: Model_Config):
     model.eval()
     progress_bar = tqdm(data_loader, total = len(data_loader))
@@ -73,7 +74,9 @@ def eval_fn(data_loader, model, device, args: Model_Config):
 
             loss = loss_fn(output, target)
             output = torch.log_softmax(output, dim = 1)
+            
             output = torch.argmax(output, dim = 1)
+            
             val_losses.append(loss.item())
             final_target.extend(target.cpu().detach().numpy().tolist())
             final_output.extend(output.cpu().detach().numpy().tolist())
@@ -81,8 +84,9 @@ def eval_fn(data_loader, model, device, args: Model_Config):
     f1 = np.round(f1.item(), 4)
     return f1, np.mean(val_losses)
 
+# This function is called to evaluate the ? full test set?
 def test_eval_fn(data_loader, model, device, args):
-    pretrained_model = args.pretrained_model
+    #pretrained_model = args.pretrained_model
     model.eval()
     progress_bar = tqdm(data_loader, total = len(data_loader))
     val_losses = []
@@ -98,8 +102,10 @@ def test_eval_fn(data_loader, model, device, args):
 
             loss = loss_fn(output, target)
             output = torch.log_softmax(output, dim = 1)
+            #print("output after log_softmax ", output)
             probabilities = output
             output = torch.argmax(output, dim = 1)
+            #print("output after argmax ", output)
             val_losses.append(loss.item())
             final_target.extend(target.cpu().detach().numpy().tolist())
             final_output.extend(output.cpu().detach().numpy().tolist())

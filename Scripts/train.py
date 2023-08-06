@@ -214,7 +214,7 @@ def run(args: Model_Config):
             
         print(f'\n---History---\n{history}')
         print("##################################### Testing ############################################")
-        pred_test, acc = test_evaluate(test_df, test_data_loader, model, device, args)
+        pred_test, acc = test_evaluate(trt,test_df, test_data_loader, model, device, args)
         pred_test.to_csv(f'{args.output_path}{traits.get(str(trt))}---test_acc---{acc}.csv', index = False)
 
         plt_acc = save_acc_curves(history)

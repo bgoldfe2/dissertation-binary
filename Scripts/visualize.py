@@ -14,7 +14,7 @@ def save_acc_curves(history):
     plt.xlabel('Epoch')
     plt.legend()
     plt.ylim([0, 1])
-    #plt.savefig(f"{args.figure_path}{args.pretrained_model}---acc---.pdf")
+    #plt.savefig(f"{args.figure_path}{traits.get(str(trt))}---acc---.pdf")
     plt.clf()
     return plt
 
