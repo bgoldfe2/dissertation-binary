@@ -35,7 +35,7 @@ def run(args: Model_Config):
     # All dataframes will have two output classes
 
     # LOOP needed, running through with one trait first hardcoded
-    print(os.getcwd())
+    #print(os.getcwd())
     # Get the absolute path to the file
     #file_path = os.path.abspath("../Dataset/Binary/train/train_Age.csv")
 
@@ -154,8 +154,8 @@ def run(args: Model_Config):
             },
         ]
 
-        print ('This is the type for the optimizer parameters - ',type(optimizer_parameters))
-        print ('This is the shape of the optimizer parameterss - ',np.shape(optimizer_parameters))
+        #print ('This is the type for the optimizer parameters - ',type(optimizer_parameters))
+        #print ('This is the shape of the optimizer parameterss - ',np.shape(optimizer_parameters))
         
         # As per the Kaggle On Stability of a Few-Samples tutorial you should not 
         # Also blanket override the weight_decay if it is declared conditionaly in
