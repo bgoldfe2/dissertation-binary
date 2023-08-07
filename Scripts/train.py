@@ -217,11 +217,13 @@ def run(args: Model_Config):
         pred_test, acc = test_evaluate(trt,test_df, test_data_loader, model, device, args)
         pred_test.to_csv(f'{args.output_path}{traits.get(str(trt))}---test_acc---{acc}.csv', index = False)
 
-        plt_acc = save_acc_curves(history)
-        plt_loss = save_loss_curves(history)
+        
+        plt_acc = save_acc_curves(args, trt, history)
+        plt_loss = save_loss_curves(args, trt, history)
 
-        plt_acc.savefig(f"{args.figure_path}{traits.get(str(trt))}---acc---.pdf")
-        plt_loss.savefig(f"{args.figure_path}{traits.get(str(trt))}---loss---.pdf")
+        
+        #plt_acc.savefig(f"{args.figure_path}{traits.get(str(trt))}---acc---.png")
+        #plt_loss.savefig(f"{args.figure_path}{traits.get(str(trt))}---loss---.png")
         
         del model, train_data_loader, valid_data_loader, train_dataset, valid_dataset
         torch.cuda.empty_cache()
