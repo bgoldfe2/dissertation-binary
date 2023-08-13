@@ -146,7 +146,7 @@ class RobertaFGBC(nn.Module):
         self.batch_norm = nn.LayerNorm(64)
         self.drop2 = nn.Dropout(args.dropout)
         self.out = nn.Linear(64, args.classes)
-        print("num of classes in model init is ",args.classes)
+        #print("num of classes in model init is ",args.classes)
 
     def forward(self, input_ids, attention_mask):
         _,last_hidden_state = self.Roberta(

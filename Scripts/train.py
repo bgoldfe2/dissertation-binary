@@ -16,13 +16,15 @@ from dataset import DatasetRoberta, DatasetXLNet, DatasetAlbert, DatasetGPT_Neo,
 from evaluate import test_evaluate
 
 import utils
-from visualize import save_acc_curves, save_loss_curves
+from visualize import save_acc_loss_curves   #save_acc_curves, save_loss_curves 
 from dataset import train_validate_test_split
 
 import utils
 import matplotlib.pyplot as plt
 from Model_Config import Model_Config, traits
 import os
+
+os.chdir('/home/bruce/dev/dissertation-binary/Scripts')
 
 
 def run(args: Model_Config):
@@ -38,7 +40,7 @@ def run(args: Model_Config):
     #print(os.getcwd())
     # Get the absolute path to the file
     #file_path = os.path.abspath("../Dataset/Binary/train/train_Age.csv")
-
+    os.chdir('/home/bruce/dev/dissertation-binary/Scripts')
     #print(pd.read_csv(file_path).head())
     
 
@@ -64,33 +66,44 @@ def run(args: Model_Config):
         test_df['target'].replace(trt,0, inplace=True)
 
         # Append single trait with Notcb 3
+        # As of pandas 2.0, append (previously deprecated) was removed.
+        # You need to use concat instead (for most applications):
         trt_ncb = 3
-        train_df = train_df.append(all_traits.get(''.join(['train_',str(trt_ncb)])),ignore_index = True)
-        valid_df = valid_df.append(all_traits.get(''.join(['val_',str(trt_ncb)])),ignore_index = True)
-        test_df = test_df.append(all_traits.get(''.join(['test_',str(trt_ncb)])),ignore_index = True)
+        loc = [''.join(['train_',str(trt_ncb)]),
+               ''.join(['val_',str(trt_ncb)]),
+               ''.join(['test_',str(trt_ncb)])]
+
+        #train_df = pd.concat([train_df, pd.DataFrame(all_traits.get(loc[0]))],ignore_index = True)
+        #valid_df = pd.concat([train_df, pd.DataFrame(all_traits.get(loc[1]))],ignore_index = True)
+        #train_df = pd.concat([train_df, pd.DataFrame(all_traits.get(loc[2]))],ignore_index = True)
+        train_df = train_df._append(all_traits.get(''.join(['train_',str(trt_ncb)])),ignore_index = True)
+        valid_df = valid_df._append(all_traits.get(''.join(['val_',str(trt_ncb)])),ignore_index = True)
+        test_df = test_df._append(all_traits.get(''.join(['test_',str(trt_ncb)])),ignore_index = True)
+        print("length of test_df is ", len(test_df))
 
         # Set the target values to 1 for the Notcb
+        
         train_df['target'].replace(trt_ncb,1, inplace=True)
         valid_df['target'].replace(trt_ncb,1, inplace=True)
         test_df['target'].replace(trt_ncb,1, inplace=True)
         
-        print(train_df)
+        #print(train_df)
         
-        print(set(train_df.label.values))
-        print("train len - {}, valid len - {}, test len - {}".format(len(train_df),\
-        len(valid_df),len(test_df)))
-        for col in train_df.columns:
-            print(col)
-        print("train example text -- ",train_df.text[1],"\nwith target -- ",\
-        train_df.label[1])
+        #print(set(train_df.label.values))
+        #print("train len - {}, valid len - {}, test len - {}".format(len(train_df),\
+        #len(valid_df),len(test_df)))
+        #for col in train_df.columns:
+            #print(col)
+        #print("train example text -- ",train_df.text[1],"\nwith target -- ",\
+        #train_df.label[1])
         
         # BHG Text encoding occurs at model instantiation  
         train_dataset = generate_dataset(train_df, args)
-        print(train_dataset.target)
-        print("train_dataset object is of type -- ",type(train_dataset))
-        print("Print Encoded Token Byte tensor at location 1 -- ", train_dataset[1]['input_ids'])
+        #print(train_dataset.target)
+        #print("train_dataset object is of type -- ",type(train_dataset))
+        #print("Print Encoded Token Byte tensor at location 1 -- ", train_dataset[1]['input_ids'])
 
-        print(train_df['target'].nunique())
+        #print(train_df['target'].nunique())
         
         #encoding = train_dataset[1]['input_ids']
         # TODO - the line below does not print out in Windows python due to unicode error would need
@@ -154,9 +167,6 @@ def run(args: Model_Config):
             },
         ]
 
-        #print ('This is the type for the optimizer parameters - ',type(optimizer_parameters))
-        #print ('This is the shape of the optimizer parameterss - ',np.shape(optimizer_parameters))
-        
         # As per the Kaggle On Stability of a Few-Samples tutorial you should not 
         # Also blanket override the weight_decay if it is declared conditionaly in
         # the optimizer_parameter dictionary
@@ -217,13 +227,8 @@ def run(args: Model_Config):
         pred_test, acc = test_evaluate(trt,test_df, test_data_loader, model, device, args)
         pred_test.to_csv(f'{args.output_path}{traits.get(str(trt))}---test_acc---{acc}.csv', index = False)
 
-        
-        plt_acc = save_acc_curves(args, trt, history)
-        plt_loss = save_loss_curves(args, trt, history)
-
-        
-        #plt_acc.savefig(f"{args.figure_path}{traits.get(str(trt))}---acc---.png")
-        #plt_loss.savefig(f"{args.figure_path}{traits.get(str(trt))}---loss---.png")
+        # Create and save the Accuracy and Loss plot during epoch training per trait
+        plt_acc_loss = save_acc_loss_curves(args, trt, history)
         
         del model, train_data_loader, valid_data_loader, train_dataset, valid_dataset
         torch.cuda.empty_cache()

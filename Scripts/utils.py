@@ -16,11 +16,12 @@ from dataset import DatasetDeberta, DatasetRoberta, DatasetXLNet, DatasetAlbert,
 
 import os
 from datetime import datetime
-from Model_Config import Model_Config
+from Model_Config import Model_Config, traits
 from glob import glob
+from collections import defaultdict
 
 #os.chdir("/home/bruce/dev/dissertation-final/Scripts")
-print("this is the folder??? ",os.getcwd())
+#print("this is the folder??? ",os.getcwd())
 
 class AverageMeter:
     """Computes and stores the average and current value"""
@@ -212,45 +213,36 @@ def generate_dataset_for_ensembling(args, df):
     return data_loader
 
 def load_models(args: Model_Config):
-    deberta_path = (f'{args.model_path}microsoft/deberta-v3-base_Best_Val_Acc.bin')
-    xlnet_path = (f'{args.model_path}xlnet-base-cased_Best_Val_Acc.bin')
-    roberta_path = (f'{args.model_path}roberta-base_Best_Val_Acc.bin')
-    albert_path = (f'{args.model_path}albert-base-v2_Best_Val_Acc.bin')
-    gpt_neo_path = (f'{args.model_path}EleutherAI/gpt-neo-125m_Best_Val_Acc.bin')
-    #gpt_neo13_path = (f'{args.model_path}EleutherAI/gpt-neo-1.3B_Best_Val_Acc.bin')
 
-    # TODO this is where the dynamic number of models can be put
-    #      currently just hardcoded
+    # This function is refactored from multi-architecture to
+    # multi-trait. The architecture for each model is consistent
+    # as RoBERTa, but each of the five models are based on
+    # one of the five cyberbullying traits
+    # NOTE: I may want to add in a one vs rest model of Notcb vs all traits
     
-    args.pretrained_model="microsoft/deberta-v3-base"
-    deberta = DeBertaFGBC(args)
+    # TODO a path for each trait
+    # TODO return a list of models - one model for each trait
 
-    args.pretrained_model="xlnet-base-cased"
-    xlnet = XLNetFGBC(args)
+    all_trt_models = defaultdict(list)
+    print("traits is &&&&&&&&&&&&&& ", traits)
+    traits.pop('3')
+    just_trts = list(traits.values())
 
-    args.pretrained_model="roberta-base"
-    roberta = RobertaFGBC(args)
+    print('just trt list of values ', just_trts)
 
-    args.pretrained_model="albert-base-v2"
-    albert = AlbertFGBC(args)
+    # Loop required to capture each of the current (variable for future growth) five trait models
+    for trt in just_trts:
+        mdl_path = ''.join([args.model_path, trt, '_Best_Val_Acc.bin'])
+        print('model path in load models is ', mdl_path)
 
-    args.pretrained_model="EleutherAI/gpt-neo-125m"
-    gpt_neo = GPT_NeoFGBC(args)
-
-    #args.pretrained_model="xlnet-base-cased"
-    #gpt_neo13 = GPT_Neo13FGBC(pretrained_model="EleutherAI/gpt-neo-1.3B")
-
-
-
-    print(deberta_path)
-    deberta.load_state_dict(torch.load(deberta_path))
-    xlnet.load_state_dict(torch.load(xlnet_path))
-    roberta.load_state_dict(torch.load(roberta_path))
-    albert.load_state_dict(torch.load(albert_path))
-    gpt_neo.load_state_dict(torch.load(gpt_neo_path))
-    #gpt_neo13.load_state_dict(torch.load(gpt_neo13_path))
-
-    return deberta, xlnet, roberta, albert, gpt_neo #, gpt_neo13
+        roberta_path = (mdl_path)
+        args.pretrained_model="roberta-base"
+        roberta = RobertaFGBC(args)        
+        roberta.load_state_dict(torch.load(roberta_path))
+        all_trt_models[trt] = roberta
+    
+    print("hope this works ", all_trt_models)
+    return all_trt_models 
 
 def oneHot(arr):
     b = np.zeros((arr.size, arr.max()+1))

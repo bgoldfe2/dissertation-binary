@@ -22,8 +22,6 @@ class Model_Config:
         self.dropout=args.dropout
         self.seed=args.seed
         self.device=args.device
-        #self.dataset=args.dataset
-
         self.pretrained_model=args.pretrained_model
         self.roberta_hidden=args.roberta_hidden
         

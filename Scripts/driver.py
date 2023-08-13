@@ -11,18 +11,27 @@ import numpy as np
 from train import run
 from Model_Config import Model_Config
 
+from evaluate import evaluate_all_models
+from ensemble import averaging
 
 # Suppress copious PyTorch warnings output
 warnings.filterwarnings("ignore")
 
+# Kludge for onsite network
+# import os
+# import ssl
+# os.environ['CURL_CA_BUNDLE'] = '/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt'
+# try:
+#     _create_unverified_https_context = ssl._create_unverified_context
+# except AttributeError:
+#     pass
+# else:
+#     ssl._create_default_https_context = _create_unverified_https_context
+# End Kludge onsite network
+
 # New v3.0 - Converts to Binary model per trait for six trait, six models
 def train_all_models(my_args: Model_Config):
-    # Use the run() method in train.py
-    # Iterate through model list
-    # 
-    #
-    #
-
+    # Iterate through trait models all of a single architecture default is RoBERTa
     print("type of my_args in train_all_models ", type(my_args))
     print("model list type ", my_args.model_list)
 
