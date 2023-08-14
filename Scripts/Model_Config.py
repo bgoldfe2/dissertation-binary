@@ -33,6 +33,7 @@ class Model_Config:
         self.model_path=args.model_path
         self.output_path=args.output_path
         self.figure_path=args.figure_path
+        self.ensemble_path=args.ensemble_path
         self.split=args.split
 
         self.model_list = None

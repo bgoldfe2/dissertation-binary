@@ -35,7 +35,7 @@ if __name__=="__main__":
     args.pretrained_model = pretrained_model
 
     # TODO currently hardcode this test run folder
-    run2test =  "2023-08-10_15_15_08--roberta-base" #2023-07-03_14_53_05--deberta-v3-base"
+    run2test =  "2023-08-13_17_55_39--roberta-base" #2023-07-03_14_53_05--deberta-v3-base"
     folder_name = "../Runs/" + run2test 
 
     # High level folders defined
@@ -46,6 +46,7 @@ if __name__=="__main__":
     print('args.model_path in eval_test are\n',args.model_path)
 
     # Test the evaluate.py - evaluate_all_models() function
+    # This I guess passed as I can do a full training run 8/14
     test_eval(args)
 
     # Test the averaging() function in ensembles.py

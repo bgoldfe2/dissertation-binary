@@ -139,7 +139,10 @@ def rocauc(args):
     
 
 def averaging(args):
-    deberta, xlnet, roberta, albert, gptneo = load_models(args)
+    all_trait_models = load_models(args)
+    
+    
+    #deberta, xlnet, roberta, albert, gptneo = load_models(args)
     test_df = pd.read_csv(f'{args.dataset_path}test.csv').dropna()
     device = set_device(args)
 

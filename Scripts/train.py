@@ -141,7 +141,7 @@ def run(args: Model_Config):
         # BHG Model Paramter definition
         num_train_steps = int(len(train_df) / args.train_batch_size * args.epochs)
 
-        print(model.named_parameters())
+        #print(model.named_parameters())
         
         # BHG definition of named_parameters from PyTorch documentation
         # Returns an iterator over module parameters, yielding both the name 

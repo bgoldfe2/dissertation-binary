@@ -62,12 +62,15 @@ def create_folders(args: Model_Config) -> Model_Config:
             subfolders.append(fubar)
     print(subfolders)
 
+    ensemble_subfolders = ['/Models/', '/Output/', '/Figures/']
+
     # High level folders defined
-    fld = ['/Models/', '/Output/', '/Figures/']
+    fld = ['/Models/', '/Output/', '/Figures/', '/Ensemble/']
     args.model_path = folder_name + "/Models/"
     args.output_path = folder_name + "/Output/"
     args.figure_path = folder_name  + "/Figures/"
-    print('args.model_path are\n',args.model_path)
+    args.ensemble_path = folder_name + "/Ensemble/"
+    #print('args.model_path are\n',args.model_path)
     
     if cur_dir[len(cur_dir)-n:] != 'Scripts':
         print('Run driver.py from Scripts Directory')        
@@ -87,6 +90,11 @@ def create_folders(args: Model_Config) -> Model_Config:
                 sub_name = top + sub + '/'
                 print(sub_name)
                 os.mkdir(sub_name)
+        for ens in ensemble_subfolders:
+            ens_folder = folder_name + "/Ensemble/" + ens
+            print(ens_folder)
+            os.mkdir(ens_folder)
+            asdf
 
     print('args type ', type(args))
     print('args.model path value ', args.model_path)

@@ -17,7 +17,13 @@ from Model_Config import Model_Config, traits
 
 from utils import oneHot, roc_curve, auc, generate_dataset_for_ensembling, load_models, set_device
 
-def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Config):
+def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Config, *ens_flag):
+
+    if ens_flag:
+        print("called from ensemble")
+    else:
+        print("not called from ensemble")
+        asdf
 
     history2 = defaultdict(list)
 
@@ -144,13 +150,14 @@ def evaluate_all_models(args: Model_Config):
     df = pd.read_csv(''.join([test_data_path, 'test_Age.csv']))
     print(df.head())
 
-    trt = traits.pop('3', 'no key found')
+    # TODO Do I want the Notcb to be tested? Should there be a Notcb model which is an Notcb vs the rest?
+    trt_pop = traits.pop('3', 'no key found')
     just_cb = traits.values()
-    #print('just cb is ',just_cb)
-
+    print('just cb is ',just_cb)
+    #print("trt popped out is ", trt_pop)
     all_test_data = []
-    for trt in just_cb:
-        all_test_data.append(pd.read_csv(''.join([test_data_path, 'test_', trt, '.csv'])))
+    for trt_cb in just_cb:
+        all_test_data.append(pd.read_csv(''.join([test_data_path, 'test_', trt_cb, '.csv'])))
 
     test_df = pd.concat(all_test_data, axis=0).reset_index()
 
@@ -165,5 +172,6 @@ def evaluate_all_models(args: Model_Config):
         args.pretrained_model="roberta-base"
         test_data_loader = generate_dataset_for_ensembling(args, df=test_df)
         print("********************* Evaluating Model for Trait", trt, " *************************")
-        test_evaluate(trt, test_df, test_data_loader, trt_mdl, device, args)
+        ensemble=True
+        test_evaluate(trt, test_df, test_data_loader, trt_mdl, device, args, ensemble)
         del trt_mdl, test_data_loader
