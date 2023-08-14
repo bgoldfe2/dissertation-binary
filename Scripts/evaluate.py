@@ -10,8 +10,9 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 import csv
 import pandas as pd
-from visualize import make_confusion_matrix
+import copy
 
+from visualize import make_confusion_matrix
 from engine import test_eval_fn
 from Model_Config import Model_Config, traits
 
@@ -19,12 +20,8 @@ from utils import oneHot, roc_curve, auc, generate_dataset_for_ensembling, load_
 
 def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Config, *ens_flag):
 
-    if ens_flag:
-        print("called from ensemble")
-    else:
-        print("not called from ensemble")
-        asdf
-
+    
+        
     history2 = defaultdict(list)
 
     # modified using the Model_Config instance args as the state reference
@@ -52,14 +49,25 @@ def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Con
     history2['F1_score'] = f1
     history2['Classification_Report\\n'] = cls_rpt
 
-    with open(f'{args.output_path}{traits.get(str(trt))}---test_metrics.csv', 'w', newline='') as csvfile:
+    # BHG Aug 14 adjusted for Ensemble folder output and function flag
+    print("ensemble path in args is ", args.ensemble_path)
+    
+    out_file = ''.join([args.output_path, traits.get(str(trt)), '-test_metrics.csv'])
+    pred_test_file = ''.join([args.output_path, traits.get(str(trt)), '-test_metrics.csv'])
+    if ens_flag:
+        pred_test_file = ''.join([args.ensemble_path, 'Output/ensemble-', traits.get(str(trt)), '-test_acc-',str(acc),'.csv'])
+        out_file = ''.join([args.ensemble_path, '/Output/ensemble-', traits.get(str(trt)), '-test_metrics.csv'])
+
+
+    with open(out_file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         for key, value in history2.items():
             writer.writerow([key, value])
 
     test_df['y_pred'] = y_pred
     pred_test = test_df[['text', 'label', 'target', 'y_pred']]
-    pred_test.to_csv(f'{args.output_path}{traits.get(str(trt))}---test_acc---{acc}.csv', index = False)
+    #pred_test.to_csv(f'{args.output_path}{traits.get(str(trt))}-test_acc-{acc}.csv', index = False)
+    pred_test.to_csv(pred_test_file, index = False)
 
     conf_mat = confusion_matrix(y_test,y_pred)
     history2['conf_mat'] = conf_mat
@@ -151,10 +159,12 @@ def evaluate_all_models(args: Model_Config):
     print(df.head())
 
     # TODO Do I want the Notcb to be tested? Should there be a Notcb model which is an Notcb vs the rest?
-    trt_pop = traits.pop('3', 'no key found')
-    just_cb = traits.values()
+    eval_all_traits = copy.deepcopy(traits)
+    print("should be all the traits ", eval_all_traits)
+    trt_pop = eval_all_traits.pop('3', 'no key found')
+    just_cb = eval_all_traits.values()
     print('just cb is ',just_cb)
-    #print("trt popped out is ", trt_pop)
+    print("trt popped out is ", trt_pop)
     all_test_data = []
     for trt_cb in just_cb:
         all_test_data.append(pd.read_csv(''.join([test_data_path, 'test_', trt_cb, '.csv'])))
@@ -165,7 +175,11 @@ def evaluate_all_models(args: Model_Config):
     # loop through all the models by trait in list of name: model dictionary in 
     # all_trait_models
     for trt, trt_mdl in all_trait_models.items():
-        print("trait is ", trt)
+        #print("trait is ", trt, " of type ", type(trt))
+        #print(traits)
+        trt_int = int({i for i in traits if traits[i]==trt}.pop())
+        #print('trt_int is ', trt_int, 'of type ', type(trt_int))
+        
         test_df.loc[test_df['label'] == trt, 'target'] = 0
         test_df.loc[test_df['label'] != trt, 'target'] = 1
         trt_mdl.to(device)
@@ -173,5 +187,6 @@ def evaluate_all_models(args: Model_Config):
         test_data_loader = generate_dataset_for_ensembling(args, df=test_df)
         print("********************* Evaluating Model for Trait", trt, " *************************")
         ensemble=True
-        test_evaluate(trt, test_df, test_data_loader, trt_mdl, device, args, ensemble)
+        # Need to convert the trt in this method to traits integer as it is the String name of the trait
+        test_evaluate(trt_int, test_df, test_data_loader, trt_mdl, device, args, ensemble)
         del trt_mdl, test_data_loader

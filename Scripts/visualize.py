@@ -159,7 +159,7 @@ def make_confusion_matrix(args,
         plt.title(title)
     print("trait ", trt, "figure path", args.figure_path, " trait ", traits.get(str(trt)))
     #asdf
-    plt.savefig(''.join([args.figure_path, trt, '_confusion_matrix.pdf']), dpi=400)
+    plt.savefig(''.join([args.figure_path, traits.get(str(trt)), '_confusion_matrix.pdf']), dpi=400)
     plt.clf()
     plt.close()
     

@@ -35,7 +35,7 @@ if __name__=="__main__":
     args.pretrained_model = pretrained_model
 
     # TODO currently hardcode this test run folder
-    run2test =  "2023-08-13_17_55_39--roberta-base" #2023-07-03_14_53_05--deberta-v3-base"
+    run2test =  "2023-08-14_16_20_29--roberta-base" #2023-07-03_14_53_05--deberta-v3-base"
     folder_name = "../Runs/" + run2test 
 
     # High level folders defined
@@ -43,6 +43,8 @@ if __name__=="__main__":
     args.model_path = folder_name + "/Models/"
     args.output_path = folder_name + "/Output/"
     args.figure_path = folder_name  + "/Figures/"
+    args.ensemble_path = folder_name  + "/Ensemble/"
+
     print('args.model_path in eval_test are\n',args.model_path)
 
     # Test the evaluate.py - evaluate_all_models() function

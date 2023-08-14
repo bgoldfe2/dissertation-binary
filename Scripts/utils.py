@@ -19,6 +19,7 @@ from datetime import datetime
 from Model_Config import Model_Config, traits
 from glob import glob
 from collections import defaultdict
+import copy
 
 #os.chdir("/home/bruce/dev/dissertation-final/Scripts")
 #print("this is the folder??? ",os.getcwd())
@@ -46,7 +47,7 @@ def create_folders(args: Model_Config) -> Model_Config:
     current_datetime = str(datetime.now().replace(microsecond=0)).replace(" ","_")
     
     # NOTE: for multi-architecture runs this run will append only the first model type
-    print("error",args.pretrained_model)
+    #print("error",args.pretrained_model)
     folder_name = "../Runs/" + current_datetime.replace(':','_') + "--" + args.pretrained_model #.split('/',1)[1] not needed roberta-base is HF model
     n=7 # number of letters in Scripts which is the folder we should be running from
     cur_dir = os.getcwd()
@@ -60,7 +61,7 @@ def create_folders(args: Model_Config) -> Model_Config:
         if '/' in bar:
             fubar = bar.split('/',1)[0]
             subfolders.append(fubar)
-    print(subfolders)
+    print("model name subfolders if any ", subfolders)
 
     ensemble_subfolders = ['/Models/', '/Output/', '/Figures/']
 
@@ -94,10 +95,10 @@ def create_folders(args: Model_Config) -> Model_Config:
             ens_folder = folder_name + "/Ensemble/" + ens
             print(ens_folder)
             os.mkdir(ens_folder)
-            asdf
+            
 
-    print('args type ', type(args))
-    print('args.model path value ', args.model_path)
+    #print('args type ', type(args))
+    #print('args.model path value ', args.model_path)
 
     return args
 
@@ -233,8 +234,9 @@ def load_models(args: Model_Config):
 
     all_trt_models = defaultdict(list)
     print("traits is &&&&&&&&&&&&&& ", traits)
-    traits.pop('3')
-    just_trts = list(traits.values())
+    lm_traits = copy.deepcopy(traits)
+    lm_traits.pop('3')
+    just_trts = list(lm_traits.values())
 
     print('just trt list of values ', just_trts)
 
@@ -249,7 +251,7 @@ def load_models(args: Model_Config):
         roberta.load_state_dict(torch.load(roberta_path))
         all_trt_models[trt] = roberta
     
-    print("hope this works ", all_trt_models)
+    #print("hope this works ", all_trt_models)
     return all_trt_models 
 
 def oneHot(arr):
