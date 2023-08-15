@@ -179,11 +179,16 @@ def evaluate_all_models(args: Model_Config):
         #print(traits)
         trt_int = int({i for i in traits if traits[i]==trt}.pop())
         #print('trt_int is ', trt_int, 'of type ', type(trt_int))
+
+        test_df['original_tgt'] = test_df['target']
         
         test_df.loc[test_df['label'] == trt, 'target'] = 0
         test_df.loc[test_df['label'] != trt, 'target'] = 1
         trt_mdl.to(device)
         args.pretrained_model="roberta-base"
+        print(test_df)
+        test_df.to_csv(''.join([args.ensemble_path, 'ensemble_test_data.csv']), index=True)
+        # TODO this is missing original targets of 3, Notcb need those back in?
         test_data_loader = generate_dataset_for_ensembling(args, df=test_df)
         print("********************* Evaluating Model for Trait", trt, " *************************")
         ensemble=True
