@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 import csv
 import pandas as pd
-import copy
+import math
 
 from visualize import make_confusion_matrix
 from engine import test_eval_fn
@@ -20,7 +20,7 @@ from utils import oneHot, roc_curve, auc, generate_dataset_for_ensembling, load_
 
 def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Config, *ens_flag):
 
-    
+    print("Trait is ", traits.get(str(trt)))
         
     history2 = defaultdict(list)
 
@@ -28,6 +28,8 @@ def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Con
     pretrained_model = args.pretrained_model
     print(f'\nEvaluating: ---{pretrained_model}---\n')
     y_pred, y_test, y_proba = test_eval_fn(test_data_loader, model, device, args)
+    #print(y_proba)
+    
     acc = accuracy_score(y_test, y_pred)
     mcc = matthews_corrcoef(y_test, y_pred)
     precision = precision_score(y_test, y_pred, average='weighted')
@@ -47,7 +49,7 @@ def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Con
     history2['Precision'] = precision
     history2['Recall'] = recall
     history2['F1_score'] = f1
-    history2['Classification_Report\\n'] = cls_rpt
+    history2['Classification_Report'] = cls_rpt
 
     # BHG Aug 14 adjusted for Ensemble folder output and function flag
     print("ensemble path in args is ", args.ensemble_path)
@@ -62,10 +64,32 @@ def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Con
     with open(out_file, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         for key, value in history2.items():
-            writer.writerow([key, value])
+            writer.writerow([key, '\n', value])
+
+    # NEW Add in the probabilities in as softmax by exp the log_softmax from loss function
+
+    for i in y_proba:
+        print("type proba ", type(y_proba))
+        print("first proba ", y_proba[0])
+        print("first element in tuple ", y_proba[0][0])
+        print("normal not log ", math.exp(y_proba[0][0]))
+        print("normal not log other part ", math.exp(y_proba[0][1]))
+        print("adds up to ", math.exp(y_proba[0][0]) + math.exp(y_proba[0][1]))
+        
+    prob_trt = []
+    prob_not_trt = []
+    for i in range(0, len(y_proba)):
+        prob_trt.append(math.exp(y_proba[i][0]))
+        prob_not_trt.append(math.exp(y_proba[i][1]))
+
+    print("prob of trt is ", prob_trt[0], "prob not trt ", prob_not_trt[0])
+    
+
 
     test_df['y_pred'] = y_pred
     pred_test = test_df[['text', 'label', 'target', 'y_pred']]
+    pred_test['prob-trt'] = prob_trt
+    pred_test['prob-not-trt'] = prob_not_trt
     #pred_test.to_csv(f'{args.output_path}{traits.get(str(trt))}-test_acc-{acc}.csv', index = False)
     pred_test.to_csv(pred_test_file, index = False)
 
@@ -73,21 +97,6 @@ def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Con
     history2['conf_mat'] = conf_mat
     print(conf_mat)
     plt.figure(3)
-
-    # group_names = ['True Neg','False Pos','False Neg','True Pos']
-    # group_counts = ['{0:0.0f}'.format(value) for value in conf_mat.flatten()]
-    # group_percentages = ['{0:.2%}'.format(value) for value in
-    #                     conf_mat.flatten()/np.sum(conf_mat)]
-    # labels = [f'{v1}\n{v2}\n{v3}' for v1, v2, v3 in
-    #         zip(group_names,group_counts,group_percentages)]
-    # labels = np.asarray(labels).reshape(2,2)
-
-    # conf_plt = sns.heatmap(conf_mat/np.sum(conf_mat), 
-    #                        annot=labels, 
-    #                        fmt='',
-    #                        linecolor='white',
-    #                        linewidths=1,
-    #                        cmap='Blues')  
 
     labels = ['True Pos','False Pos','False Neg','True Neg']
     categories = ['1', '0']
@@ -97,15 +106,13 @@ def test_evaluate(trt, test_df, test_data_loader, model, device, args: Model_Con
                       cmap='Blues',
                       title=traits.get(str(trt)))
     
-    #conf_plt.set(xlabel=trt, ylabel='Notcb')
-    # plt.savefig(''.join([args.figure_path, traits.get(str(trt)), 'confusion_matrix.pdf']), dpi=400)
-    # plt.clf()
-    # plt.close()
+
     # auc evaluation new for this version
     # ROC Curve
     calc_roc_auc(trt, np.array(y_test), np.array(y_proba), args)
 
     # Return the test results for saving in train.py
+    # chainging the return to add in probabilities this may screw up other calls
     return pred_test, acc
 
 def calc_roc_auc(trt, all_labels, all_logits, args, name=None ):
@@ -144,9 +151,10 @@ def calc_roc_auc(trt, all_labels, all_logits, args, name=None ):
     print(f'ROC-AUC Score: {roc_auc["micro"]}')
 
 def evaluate_all_models(args: Model_Config):
+    
+    # Returns a 
     all_trait_models = load_models(args)
-    #print("&*&**&*&&*&*&*&*&*&* ",len(all_trait_models))
-
+    
     # TODO combine all the traits into binary dataset with a mapping back to 
     # their original full dataset values
 
@@ -155,19 +163,21 @@ def evaluate_all_models(args: Model_Config):
 
     test_data_path = '../Dataset/Binary/test/'
 
-    df = pd.read_csv(''.join([test_data_path, 'test_Age.csv']))
-    print(df.head())
+    #df = pd.read_csv(''.join([test_data_path, 'test_Age.csv']))
+    #print(df.head())
 
     # TODO Do I want the Notcb to be tested? Should there be a Notcb model which is an Notcb vs the rest?
-    eval_all_traits = copy.deepcopy(traits)
-    print("should be all the traits ", eval_all_traits)
-    trt_pop = eval_all_traits.pop('3', 'no key found')
-    just_cb = eval_all_traits.values()
-    print('just cb is ',just_cb)
-    print("trt popped out is ", trt_pop)
+    # I think this is wrong, we want all the data including the Notcb
+    # eval_just_cb_traits = copy.deepcopy(traits)
+    # print("should be all the traits ", eval_just_cb_traits)
+    # trt_pop = eval_just_cb_traits.pop('3', 'no key found')
+    # just_cb = eval_just_cb_traits.values()
+    # print('just cb is ',just_cb)
+    # print("trt popped out is ", trt_pop)
+    all_traits_values = traits.values()
     all_test_data = []
-    for trt_cb in just_cb:
-        all_test_data.append(pd.read_csv(''.join([test_data_path, 'test_', trt_cb, '.csv'])))
+    for each_trt in all_traits_values:
+        all_test_data.append(pd.read_csv(''.join([test_data_path, 'test_', each_trt, '.csv'])))
 
     test_df = pd.concat(all_test_data, axis=0).reset_index()
 
@@ -186,12 +196,18 @@ def evaluate_all_models(args: Model_Config):
         test_df.loc[test_df['label'] != trt, 'target'] = 1
         trt_mdl.to(device)
         args.pretrained_model="roberta-base"
-        print(test_df)
-        test_df.to_csv(''.join([args.ensemble_path, 'ensemble_test_data.csv']), index=True)
+        #print(test_df)
+        #test_df.to_csv(''.join([args.ensemble_path, 'ensemble_test_data.csv']), index=True)
         # TODO this is missing original targets of 3, Notcb need those back in?
         test_data_loader = generate_dataset_for_ensembling(args, df=test_df)
         print("********************* Evaluating Model for Trait", trt, " *************************")
         ensemble=True
         # Need to convert the trt in this method to traits integer as it is the String name of the trait
-        test_evaluate(trt_int, test_df, test_data_loader, trt_mdl, device, args, ensemble)
+        pred_test, acc = test_evaluate(trt_int, test_df, test_data_loader, trt_mdl, device, args, ensemble)
+
+               
+
+        pred_test.to_csv(f'{args.output_path}{traits.get(str(trt))}---test_acc---{acc}.csv', index = False)
+
+
         del trt_mdl, test_data_loader

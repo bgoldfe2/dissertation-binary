@@ -102,7 +102,9 @@ def test_eval_fn(data_loader, model, device, args):
 
             loss = loss_fn(output, target)
             output = torch.log_softmax(output, dim = 1)
+            regular_probs = torch.softmax(output, dim = 1)
             #print("output after log_softmax ", output)
+            #print("output after regular softmax ", regular_probs)
             probabilities = output
             output = torch.argmax(output, dim = 1)
             #print("output after argmax ", output)
