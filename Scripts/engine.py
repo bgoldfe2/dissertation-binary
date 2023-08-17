@@ -149,6 +149,8 @@ def generate_output(data, model, device, args: Model_Config):
     model.zero_grad()
 
     output = model(input_ids=input_ids, attention_mask = attention_mask)
-    #print("$$$$$$$$$$$$$$$$$ I got to output $$$$$$$$$$$$$$$$$$$$")
+    #print("I got to output ", output)
+    #print(" output softmax", torch.softmax(output, dim=1))
+    
 
     return output, target, input_ids
