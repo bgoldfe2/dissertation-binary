@@ -5,6 +5,7 @@
 
 import pandas as pd
 import copy
+from Model_Config import traits
 
 def parse_all_traits():
 
@@ -70,15 +71,11 @@ def make_trait_based_files(tgt):
 
 if __name__=="__main__":
 
-    traits ={ '0': "Age", '1': "Ethnicity", '2': "Gender", '3': "Notcb", '4': "Others", '5': "Religion"}
-    split = ["test","train","val"]
-    
+    split = ["test","train","val"]    
 
     fld_bin_path ='../Dataset/BinOneRest/'
     all = parse_all_traits()
-    #print(all)
     print(type(all[0]))
-    #print(all[0])
         
     # dataset_type is the train, val, test set of data
     for dataset_type in range(3):
@@ -92,19 +89,10 @@ if __name__=="__main__":
             df_copy.loc[df_copy['target'] == 6, 'target'] = 1
             
             print(df_copy.head(15))
-        asdf
-            
-
-    for ids,df in enumerate(all):
-        print('file ', split[ids], ' is ', len(df), ' traits')
-        for i,trt_num in enumerate(df):
-            # Drop original and second indices and reset new one per file
-            trt_num.drop('Unnamed: 0', axis=1, inplace=True)
-            trt_num.reset_index(inplace=True, drop=True)
-            print(type(trt_num))
-            print(trt_num)
-            asdf
-            
             # save the csv file
-            trt_num.to_csv(''.join([fld_bin_path,split[ids],'//',split[ids],'_',traits.get(str(i)),'.csv'])\
-                           , index=False, header=True)
+            print(''.join([fld_bin_path,split[dataset_type],'/',split[dataset_type],'_',traits.get(str(i)),'_one_v_rest.csv']))
+            #af
+            df_copy.to_csv(''.join([fld_bin_path,split[dataset_type],'/',split[dataset_type],'_',traits.get(str(i)),'_one_v_rest.csv'])\
+                           , index=True, header=True)
+            print('saved the file ',''.join([fld_bin_path,split[dataset_type],'/',split[dataset_type],'_',traits.get(str(i)),'_one_v_rest.csv']))
+              
