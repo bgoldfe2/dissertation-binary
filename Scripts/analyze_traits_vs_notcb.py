@@ -21,7 +21,8 @@ def parse_tvn():
 
 
     df = pd.read_csv(file)
-    print(len(df))
+    total_all = len(df)
+    print(total_all)
     print(df.columns)
     # Number in per label that are correct
     df['match'] = df['target']==df['y_pred']
@@ -33,42 +34,29 @@ def parse_tvn():
 
     # # Number in per label that are correct
     # # also size(), count(), nth(), last()
-    #count = df.groupby('label').size()
-    #print(count)
+    count = df.groupby('label').size()
+    print("count is of type ", type(count))
+    print("keys are ", count.axes)
+    print("get value for Age ", count.get('Age'))
+    print("Size of each trait \n", count)
 
     #df_group = df.groupby("label")
     
         
     print("confusion matrix for ","religion"," versus Not Cyberbullying")
     cm = confusion_matrix(df['target'], df['y_pred'])
-
+    print("the type of the confusion matrix is ", type(cm))
     # Print the confusion matrix
     print(cm)
     plt.figure()
     sns.heatmap(cm, annot=True, fmt='d')
     plt.xlabel('Predicted')
     plt.ylabel('True')
-    plt.show()
+    #plt.show()
     
-    #df_group.get_group('Age')
-
-
-    # for name_of_group, contents_of_group in df_group:
-    #     print(name_of_group)
-    #     print(contents_of_group)
+    cm_sum =  cm.sum()
+    print("sum of numbers in cm is ", cm_sum)
     
-    # df.groupby('var1')['var2'].apply(lambda x: (x=='val').sum()).reset_index(name='count')
-
-    # df_groupby = df.groupby('label')['match'].apply(lambda x: (x==True).sum()).reset_index(name='count')
-
-    return df
-
-def graph_by_trt(df):
-
-    
-    #df_fp = df.groupby('label')['match'].apply(lambda x: (x==True).sum()).reset_index(name='count')
-    #df = df.assign(false_pos=df['target']==1 & df['y_pred']==0)
-    #df = df.assign(false_neg=df['target']==0 & df['y_pred']==1)
     df['false_pos'] = np.where(df['target']==0, 1, 0) & np.where(df['y_pred']==1, 1, 0)
     df['false_neg'] = np.where(df['target']==1, 1, 0) & np.where(df['y_pred']==0, 1, 0)
     df_cnt_fp = df.groupby('label')['false_pos'].apply(lambda x: (x==True).sum()).reset_index(name='count')
@@ -76,15 +64,35 @@ def graph_by_trt(df):
     
     print('false positives')
     print(df_cnt_fp)
+    print(type(df_cnt_fp))
+    print(df_cnt_fp.axes)
+    fp = df_cnt_fp.loc[df_cnt_fp['label']=='Religion', 'count'].values[0]
+    fn = df_cnt_fn.loc[df_cnt_fn['label']=='Religion', 'count'].values[0]
+    print(type(fp))
+    print(fp)
     
     print('false negatives')
     print(df_cnt_fn)
 
+    # Create each sub-confusion matrix of 2 x 2 for the five traits
+    # Test hard coded for religion
+    total_religion = count.get('Religion')  # 1575
+    print("total in religion is ", total_religion)
+
+    total_true_religion = cm[0][0]
+    total_true_notcb = cm[1][1]
+    # total_false_religion = df_cnt_fp.get(5)  #61
+    # total_false_notcb_in_religion_model = df_cnt_fn.get('false_neg') # 0
+
+
+    cm_religion = np.array([[total_true_religion, fp], [fn, total_true_notcb]])
+    
+    print(cm_religion)
 
     
 
 
 
 if __name__=="__main__":
-    df = parse_tvn()
-    graph_by_trt(df)
+    parse_tvn()
+    #graph_by_trt(df, cm)
