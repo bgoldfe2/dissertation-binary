@@ -9,6 +9,7 @@ from Model_Config import traits
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
 import matplotlib.pyplot as plt
+import os
 
 
 def parse_tvn(run_folder):
@@ -22,13 +23,27 @@ def parse_tvn(run_folder):
     ################# Outer Loop to read in all the files aka traits in Ensemble/Output and loop #################################
 
     # TODO loop through the folder and get each of the files starting with acc in the name or not metrics in the name?
+    # iterate over files in that directory
 
-    fubar = [42]
+    # Flag that identifies output results
+    results_flag = '_acc-'
+    results_file_list = []
+    for filename in os.listdir(run_folder):
+        f = os.path.join(run_folder, filename)
+        # checking if it is a file
+        if os.path.isfile(f):
+            if results_flag in filename:
+                results_file_list.append(filename)
+
+    #print(resuls_file_list)
     
-    for foo in fubar:    
+    for results in results_file_list:    
         
         # stand in for getting the file trait identifier during loop
-        file_trt = 'Age'
+
+        file_trt = results.split('-')[1]
+        print(file_trt)
+        file = ''.join([run_folder,results])
 
         df = pd.read_csv(file)
         total_all = len(df)
@@ -37,7 +52,6 @@ def parse_tvn(run_folder):
         # Number in per label that are correct
         df['match'] = df['target']==df['y_pred']
         
-
         # Number in per label that are correct
         count = df.groupby('label').size()
         print("count is of type ", type(count))
@@ -51,12 +65,17 @@ def parse_tvn(run_folder):
         print("the type of the confusion matrix is ", type(cm))
         # Print the confusion matrix
         print(cm)
-        plt.figure(1)
+        fig1, ax = plt.subplots()
+        plt.title(''.join(["Single Trait ", file_trt, " vs Single Trait Notcb"]))
         sns.heatmap(cm, annot=True, fmt='d')
         plt.xlabel('Predicted')
         plt.ylabel('True')
-        #plt.show()  # Show all plots at the end - can be same for saving?
-        
+        trt_labels = [file_trt,'Notcb']
+        ax.set_yticklabels(trt_labels)
+        ax.set_xticklabels(trt_labels)
+        plt.show()  # Show all plots at the end - can be same for saving?
+        fig1.savefig(''.join(['../Runs/2023-08-14_16_20_29--roberta-base/Ensemble/', 'Figures/','ensemble-bin-',file_trt,'-vs-Notcb.pdf']))
+        asdf
         # Check to see the numbers add to 9541 = size of the test set
         cm_sum =  cm.sum()
         print("sum of numbers in cm is ", cm_sum) 
@@ -71,7 +90,6 @@ def parse_tvn(run_folder):
         print(type(df_cnt_fp))
         print(df_cnt_fp.axes)
 
-        
         print("trait in loop is ", file_trt)
 
         fp = df_cnt_fp.loc[df_cnt_fp['label']==file_trt, 'count'].values[0]
@@ -89,20 +107,10 @@ def parse_tvn(run_folder):
 
         total_true_religion = cm[0][0]
         total_true_notcb = cm[1][1]
-        # total_false_religion = df_cnt_fp.get(5)  #61
-        # total_false_notcb_in_religion_model = df_cnt_fn.get('false_neg') # 0
-
-
+        
         cm_trt = np.array([[total_true_religion, fp], [fn, total_true_notcb]])
         
         print(cm_trt)
-
-        # Show religion sub confusion matrix
-        # plt.figure(2)
-        # sns.heatmap(cm_religion, annot=True, fmt='d')
-        # plt.xlabel('Predicted')
-        # plt.ylabel('True')
-        # plt.show()
 
         # Show the distribution of false cyberbullying inferences that should have been Notcb
         
@@ -127,11 +135,12 @@ def parse_tvn(run_folder):
 
         # Show the plot
         plt.show()
-
-    
+        asdf
+        
 
 
 
 if __name__=="__main__":
-    parse_tvn('bar')
+    test_run = '../Runs/2023-08-14_16_20_29--roberta-base/Ensemble/Output/'
+    parse_tvn(test_run)
     #graph_by_trt(df, cm)
