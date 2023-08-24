@@ -28,14 +28,15 @@ def parse_tvn(run_folder):
     # Flag that identifies output results
     results_flag = '_acc-'
     results_file_list = []
-    for filename in os.listdir(run_folder):
-        f = os.path.join(run_folder, filename)
+    output_folder = ''.join([run_folder,'Output/'])
+    for filename in os.listdir(output_folder):
+        f = os.path.join(output_folder, filename)
         # checking if it is a file
         if os.path.isfile(f):
             if results_flag in filename:
                 results_file_list.append(filename)
 
-    #print(resuls_file_list)
+    print(results_file_list)
     
     for results in results_file_list:    
         
@@ -43,7 +44,7 @@ def parse_tvn(run_folder):
 
         file_trt = results.split('-')[1]
         print(file_trt)
-        file = ''.join([run_folder,results])
+        file = ''.join([run_folder,'Output/',results])
 
         df = pd.read_csv(file)
         total_all = len(df)
@@ -73,9 +74,9 @@ def parse_tvn(run_folder):
         trt_labels = [file_trt,'Notcb']
         ax.set_yticklabels(trt_labels)
         ax.set_xticklabels(trt_labels)
-        plt.show()  # Show all plots at the end - can be same for saving?
-        fig1.savefig(''.join(['../Runs/2023-08-14_16_20_29--roberta-base/Ensemble/', 'Figures/','ensemble-bin-',file_trt,'-vs-Notcb.pdf']))
-        asdf
+        #plt.show()  # Show all plots at the end - can be same for saving?
+        fig1.savefig(''.join([run_folder, 'Figures/','ensemble-bin-',file_trt,'-vs-Notcb-conf-mat.pdf']))
+        
         # Check to see the numbers add to 9541 = size of the test set
         cm_sum =  cm.sum()
         print("sum of numbers in cm is ", cm_sum) 
@@ -114,7 +115,7 @@ def parse_tvn(run_folder):
 
         # Show the distribution of false cyberbullying inferences that should have been Notcb
         
-        plt.figure(2)
+        fig2, ax = plt.subplots()
         # Create a barplot
         x = df_cnt_fp.iloc[:, 0].to_list()
         y = df_cnt_fp.iloc[:, 1].to_list()
@@ -122,9 +123,11 @@ def parse_tvn(run_folder):
         print(" x ", x, " y ", y)
         plt.title("".join([file_trt, " vs Notcb Model, ", file_trt, " that were labelled Notcb"]))
         plt.bar(x, y)
+        fig2.savefig(''.join([run_folder, 'Figures/','ensemble-bin-',file_trt,'-False-Notcb-bar-plot.pdf']))
+
 
         # Show the distribution of the Notcb inferences that should have been cyberbullying
-        plt.figure(3)
+        fig3, ax = plt.subplots()
         # Create a barplot
         x = df_cnt_fn.iloc[:, 0].to_list()
         y = df_cnt_fn.iloc[:, 1].to_list()
@@ -132,15 +135,16 @@ def parse_tvn(run_folder):
         print(" x ", x, " y ", y)
         plt.title("".join([file_trt, " vs Notcb Model, Notcb and all the rest that were labelled ", file_trt]))
         plt.bar(x, y)
+        fig3.savefig(''.join([run_folder, 'Figures/','ensemble-bin-Notcb-False-',file_trt,'.pdf']))
 
-        # Show the plot
+        # Show the plot TURN ON FOR DEBUG
         plt.show()
-        asdf
+        
         
 
 
 
 if __name__=="__main__":
-    test_run = '../Runs/2023-08-14_16_20_29--roberta-base/Ensemble/Output/'
+    test_run = '../Runs/2023-08-14_16_20_29--roberta-base/Ensemble/'
     parse_tvn(test_run)
     #graph_by_trt(df, cm)
